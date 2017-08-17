@@ -14,6 +14,7 @@
 
 package com.liferay.portal.service.impl;
 
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.NoSuchLayoutFriendlyURLException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -28,6 +29,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -254,10 +256,21 @@ public class LayoutFriendlyURLLocalServiceImpl
 			}
 		}
 		else {
+			String numberOfItemsToFetchConfigValue = PropsUtil.get(
+				PropsKeys.LAYOUT_FRIENDLY_URL_CACHE_SIZE);
+
+			int startPos = QueryUtil.ALL_POS;
+			int numberOfItemsToFetch = QueryUtil.ALL_POS;
+
+			if (numberOfItemsToFetchConfigValue != null) {
+				numberOfItemsToFetch = Integer.parseInt(
+					numberOfItemsToFetchConfigValue);
+			}
+
 			List<LayoutFriendlyURL> layoutFriendlyURLs =
 				layoutFriendlyURLPersistence.findByP_L(
 					ListUtil.toLongArray(layouts, Layout.PLID_ACCESSOR),
-					languageId);
+					languageId, startPos, numberOfItemsToFetch);
 
 			for (LayoutFriendlyURL layoutFriendlyURL : layoutFriendlyURLs) {
 				layoutFriendlyURLMap.put(

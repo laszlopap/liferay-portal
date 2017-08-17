@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.model.Contact;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutFriendlyURL;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.Theme;
@@ -119,7 +120,9 @@ public class ThemeDisplay
 			layout = virtualLayout.getSourceLayout();
 		}
 
-		_layoutFriendlyURLs.remove(layout.getPlid());
+		if (_layoutFriendlyURLs.containsKey(layout.getPlid())) {
+			_layoutFriendlyURLs.remove(layout.getPlid());
+		}
 	}
 
 	@Override
@@ -1928,7 +1931,17 @@ public class ThemeDisplay
 		String layoutFriendlyURL = _layoutFriendlyURLs.get(layout.getPlid());
 
 		if (layoutFriendlyURL == null) {
-			layoutFriendlyURL = layout.getFriendlyURL(_locale);
+			LayoutFriendlyURL layoutFriendlyURLToBeCached =
+				LayoutFriendlyURLLocalServiceUtil.fetchLayoutFriendlyURL(
+					layout.getPlid(), _languageId);
+
+			if (layoutFriendlyURLToBeCached != null) {
+				layoutFriendlyURL =
+					layoutFriendlyURLToBeCached.getFriendlyURL();
+			}
+			else {
+				layoutFriendlyURL = layout.getFriendlyURL(_locale);
+			}
 
 			_layoutFriendlyURLs.put(layout.getPlid(), layoutFriendlyURL);
 		}
