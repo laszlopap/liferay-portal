@@ -14,6 +14,7 @@
 
 package com.liferay.portal.service.impl;
 
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.NoSuchLayoutFriendlyURLException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -33,6 +34,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.service.base.LayoutFriendlyURLLocalServiceBaseImpl;
+import com.liferay.portal.util.PropsValues;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -254,10 +256,13 @@ public class LayoutFriendlyURLLocalServiceImpl
 			}
 		}
 		else {
+			int startPos = QueryUtil.ALL_POS;
+			int endPos = PropsValues.LAYOUT_FRIENDLY_URL_CACHE_SIZE;
+
 			List<LayoutFriendlyURL> layoutFriendlyURLs =
 				layoutFriendlyURLPersistence.findByP_L(
 					ListUtil.toLongArray(layouts, Layout.PLID_ACCESSOR),
-					languageId);
+					languageId, startPos, endPos);
 
 			for (LayoutFriendlyURL layoutFriendlyURL : layoutFriendlyURLs) {
 				layoutFriendlyURLMap.put(
