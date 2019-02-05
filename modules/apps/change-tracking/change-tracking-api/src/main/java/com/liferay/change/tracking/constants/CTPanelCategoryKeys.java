@@ -22,4 +22,7 @@ public class CTPanelCategoryKeys {
 	public static final String CONTROL_PANEL_CHANGE_LISTS =
 		"control_panel.change_lists";
 
+	public static final String CONTROL_PANEL_MY_CHANGE_LISTS =
+		"control_panel.my_change_lists";
+
 }

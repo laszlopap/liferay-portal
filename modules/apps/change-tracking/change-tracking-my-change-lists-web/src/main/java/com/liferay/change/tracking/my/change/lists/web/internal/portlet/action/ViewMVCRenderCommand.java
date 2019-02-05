@@ -24,7 +24,7 @@ import javax.portlet.RenderResponse;
 import org.osgi.service.component.annotations.Component;
 
 /**
- * @author Máté Thurzó
+ * @author Laszlo Pap
  */
 @Component(
 	immediate = true,

@@ -16,7 +16,7 @@
 
 <%@ include file="/init.jsp" %>
 
-<div class="sheet sheet-lg">
+<div class="my-change-lists-sheet sheet sheet-lg">
 	<div class="sheet-header">
 		<h2 class="sheet-title">My Change Lists example screen</h2>
 
