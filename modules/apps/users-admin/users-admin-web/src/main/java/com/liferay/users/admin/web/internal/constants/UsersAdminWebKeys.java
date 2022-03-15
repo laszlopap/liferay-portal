@@ -44,4 +44,10 @@ public class UsersAdminWebKeys {
 	public static final String USER_ACTION_CONTRIBUTORS =
 		"USER_ACTION_CONTRIBUTORS";
 
+	public static final String SEGMENTS_ENTRY_RETRIEVER =
+			"SEGMENTS_ENTRY_RETRIEVER";
+
+	public static final String REQUEST_CONTEXT_MAPPER =
+		"REQUEST_CONTEXT_MAPPER";
+
 }
