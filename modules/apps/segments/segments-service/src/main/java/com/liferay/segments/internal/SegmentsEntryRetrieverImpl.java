@@ -89,13 +89,16 @@ public class SegmentsEntryRetrieverImpl implements SegmentsEntryRetriever {
 	private boolean _checkIfOnlyDefaultValuesInSegmentsAttribute() {
 		ServiceContext serviceContext =
 			ServiceContextThreadLocal.getServiceContext();
+		boolean onlyDefaultValues = true;
+
+		if (serviceContext == null) {
+			return onlyDefaultValues;
+		}
 
 		HttpServletRequest httpServletRequest = serviceContext.getRequest();
 
 		long[] segmentEntryIDs = (long[])httpServletRequest.getAttribute(
 			SegmentsWebKeys.SEGMENTS_ENTRY_IDS);
-
-		boolean onlyDefaultValues = true;
 
 		if (segmentEntryIDs != null) {
 			for (long segmentEntryID : segmentEntryIDs) {
