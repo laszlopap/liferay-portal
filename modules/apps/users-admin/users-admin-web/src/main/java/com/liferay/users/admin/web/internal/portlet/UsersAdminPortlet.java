@@ -14,12 +14,22 @@
 
 package com.liferay.users.admin.web.internal.portlet;
 
+
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.users.admin.constants.UsersAdminPortletKeys;
+import com.liferay.users.admin.web.internal.constants.UsersAdminWebKeys;
+import com.liferay.segments.SegmentsEntryRetriever;
+import com.liferay.segments.context.RequestContextMapper;
+
+import java.io.IOException;
 
 import javax.portlet.Portlet;
+import javax.portlet.PortletException;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Pei-Jung Lan
@@ -48,4 +58,29 @@ import org.osgi.service.component.annotations.Component;
 	service = Portlet.class
 )
 public class UsersAdminPortlet extends MVCPortlet {
+	
+	@Override
+	protected void doDispatch(
+			RenderRequest renderRequest, RenderResponse renderResponse)
+		throws IOException, PortletException {
+
+
+			renderRequest.setAttribute(
+					UsersAdminWebKeys.REQUEST_CONTEXT_MAPPER,
+				requestContextMapper);
+
+			renderRequest.setAttribute(
+					UsersAdminWebKeys.SEGMENTS_ENTRY_RETRIEVER,
+				segmentsEntryRetriever);
+
+
+			super.doDispatch(renderRequest, renderResponse);
+	}
+
+	@Reference
+	protected RequestContextMapper requestContextMapper;
+
+	@Reference
+	protected SegmentsEntryRetriever segmentsEntryRetriever;
+
 }

@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Contact;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Organization;
@@ -32,6 +33,7 @@ import com.liferay.portal.kernel.model.UserGroupGroupRole;
 import com.liferay.portal.kernel.model.UserGroupRole;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.kernel.service.PasswordPolicyLocalServiceUtil;
@@ -43,14 +45,25 @@ import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.users.admin.kernel.util.UsersAdminUtil;
+import com.liferay.users.admin.web.internal.constants.UsersAdminWebKeys;
+import com.liferay.segments.service.SegmentsEntryRoleLocalServiceUtil;
+import com.liferay.segments.SegmentsEntryRetriever;
+import com.liferay.segments.context.RequestContextMapper;
+import com.liferay.segments.model.SegmentsEntryRole;
+import com.liferay.segments.constants.SegmentsWebKeys;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -79,7 +92,12 @@ public class UserDisplayContext {
 
 		_renderResponse = (RenderResponse)_httpServletRequest.getAttribute(
 			JavaConstants.JAVAX_PORTLET_RESPONSE);
-
+		
+		_requestContextMapper = (RequestContextMapper)_httpServletRequest.getAttribute(
+				UsersAdminWebKeys.REQUEST_CONTEXT_MAPPER);
+		_segmentsEntryRetriever = (SegmentsEntryRetriever)_httpServletRequest.getAttribute(
+				UsersAdminWebKeys.SEGMENTS_ENTRY_RETRIEVER);
+		
 		_selUser = PortalUtil.getSelectedUser(httpServletRequest);
 		_themeDisplay = themeDisplay;
 	}
@@ -176,8 +194,11 @@ public class UserDisplayContext {
 			return _selUser.getRoles();
 		}
 
+		List<Role> userRoles = _getRolesFromSegments();
+		userRoles.addAll(_selUser.getRoles());
+
 		return UsersAdminUtil.filterRoles(
-			_permissionChecker, _selUser.getRoles());
+			_permissionChecker, userRoles);
 	}
 
 	public User getSelectedUser() {
@@ -266,6 +287,50 @@ public class UserDisplayContext {
 			organizations);
 	}
 
+	private List<Role> _getRolesFromSegments(){
+
+		List<Long> roleIds = new ArrayList<Long>(); 
+		try {
+			
+			long[] segmentsEntryIds = _getSegmentsEntryIds();
+				
+			for (int index = 0; index < segmentsEntryIds.length ; index++) {
+				
+				List<SegmentsEntryRole> segmentsEntryRoles = 
+					SegmentsEntryRoleLocalServiceUtil.getSegmentsEntryRoles(segmentsEntryIds[index]);
+				
+				for (SegmentsEntryRole segmentsEntryRole: segmentsEntryRoles) {
+					if (!roleIds.contains(segmentsEntryRole.getRoleId())) {
+						roleIds.add(segmentsEntryRole.getRoleId());
+					}
+	
+				}
+			}
+	
+			long[] roleIdArray = new long[roleIds.size()];
+			
+			for (Long roleId: roleIds) {
+				roleIdArray[roleIds.indexOf(roleId)] = roleId;
+			}
+			
+				List<Role> roles = RoleLocalServiceUtil.getRoles(roleIdArray);
+				return roles;
+		}
+		 catch (PortalException pe) {
+			 _log.error("Error occured during fetching roles: ", pe);
+			 return null;
+		 }
+	}
+
+	private long[] _getSegmentsEntryIds() throws PortalException {
+
+		Company globalCompany = CompanyLocalServiceUtil.getCompanyByWebId(PropsUtil.get(PropsKeys.COMPANY_DEFAULT_WEB_ID));
+		return _segmentsEntryRetriever.getSegmentsEntryIds(
+				globalCompany.getGroupId(), _selUser.getUserId(),
+			_requestContextMapper.map(
+					_httpServletRequest));
+	}
+
 	private List<UserGroupRole> _getUserGroupRoles() throws PortalException {
 		if (_selUser == null) {
 			return Collections.emptyList();
@@ -324,5 +389,7 @@ public class UserDisplayContext {
 	private final RenderResponse _renderResponse;
 	private final User _selUser;
 	private final ThemeDisplay _themeDisplay;
+	private final RequestContextMapper _requestContextMapper;
+	private final SegmentsEntryRetriever _segmentsEntryRetriever;
 
 }
