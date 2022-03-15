@@ -33,6 +33,12 @@ public class UsersAdminWebKeys {
 	public static final String ORGANIZATION_SCREEN_NAVIGATION_DISPLAY_CONTEXT =
 		"ORGANIZATION_SCREEN_NAVIGATION_DISPLAY_CONTEXT";
 
+	public static final String REQUEST_CONTEXT_MAPPER =
+		"REQUEST_CONTEXT_MAPPER";
+
+	public static final String SEGMENTS_ENTRY_RETRIEVER =
+		"SEGMENTS_ENTRY_RETRIEVER";
+
 	public static final String SELECTED_USER = "SELECTED_USER";
 
 	public static final String SHOW_CONTROLS = "SHOW_CONTROLS";
@@ -43,11 +49,5 @@ public class UsersAdminWebKeys {
 
 	public static final String USER_ACTION_CONTRIBUTORS =
 		"USER_ACTION_CONTRIBUTORS";
-
-	public static final String SEGMENTS_ENTRY_RETRIEVER =
-			"SEGMENTS_ENTRY_RETRIEVER";
-
-	public static final String REQUEST_CONTEXT_MAPPER =
-		"REQUEST_CONTEXT_MAPPER";
 
 }
