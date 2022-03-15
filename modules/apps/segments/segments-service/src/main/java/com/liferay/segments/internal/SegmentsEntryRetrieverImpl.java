@@ -28,6 +28,10 @@ import com.liferay.segments.context.Context;
 import com.liferay.segments.provider.SegmentsEntryProviderRegistry;
 import com.liferay.segments.simulator.SegmentsEntrySimulator;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -100,14 +104,43 @@ public class SegmentsEntryRetrieverImpl implements SegmentsEntryRetriever {
 	private Optional<long[]> _getSegmentsEntryIdsOptional() {
 		Optional<HttpServletRequest> httpServletRequestOptional =
 			_getHttpServletRequestOptional();
+		
+		boolean onlyDefaultValues = _checkIfOnlyDefaultValuesInSegmentsAttribute();
+		
+		if (onlyDefaultValues)  {
+			return Optional.empty();
+		}
 
 		return Optional.ofNullable(
 			httpServletRequestOptional.map(
 				httpServletRequest -> (long[])httpServletRequest.getAttribute(
-					SegmentsWebKeys.SEGMENTS_ENTRY_IDS)
+						SegmentsWebKeys.SEGMENTS_ENTRY_IDS)
 			).orElse(
 				null
 			));
+	}
+
+	private boolean _checkIfOnlyDefaultValuesInSegmentsAttribute() {
+		ServiceContext serviceContext =
+				ServiceContextThreadLocal.getServiceContext();
+		
+		HttpServletRequest request = serviceContext.getRequest();
+		
+		long[] segmentEntryIDs = (long[])request.getAttribute(
+					SegmentsWebKeys.SEGMENTS_ENTRY_IDS);
+		boolean onlyDefaultValues = true;
+		
+		if (segmentEntryIDs != null) {
+			for (int index = 0; index < segmentEntryIDs.length; index++) {
+				if (segmentEntryIDs[index] != SegmentsEntryConstants.ID_DEFAULT) {
+					onlyDefaultValues = false;
+					break;
+				}
+			}
+		}
+
+		
+		return onlyDefaultValues;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
