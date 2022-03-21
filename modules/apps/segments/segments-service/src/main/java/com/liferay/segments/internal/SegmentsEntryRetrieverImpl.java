@@ -97,15 +97,17 @@ public class SegmentsEntryRetrieverImpl implements SegmentsEntryRetriever {
 
 		HttpServletRequest httpServletRequest = serviceContext.getRequest();
 
-		long[] segmentEntryIDs = (long[])httpServletRequest.getAttribute(
-			SegmentsWebKeys.SEGMENTS_ENTRY_IDS);
+		if (httpServletRequest != null) {
+			long[] segmentEntryIDs = (long[])httpServletRequest.getAttribute(
+				SegmentsWebKeys.SEGMENTS_ENTRY_IDS);
 
-		if (segmentEntryIDs != null) {
-			for (long segmentEntryID : segmentEntryIDs) {
-				if (segmentEntryID != SegmentsEntryConstants.ID_DEFAULT) {
-					onlyDefaultValues = false;
+			if (segmentEntryIDs != null) {
+				for (long segmentEntryID : segmentEntryIDs) {
+					if (segmentEntryID != SegmentsEntryConstants.ID_DEFAULT) {
+						onlyDefaultValues = false;
 
-					break;
+						break;
+					}
 				}
 			}
 		}
